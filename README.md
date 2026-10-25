@@ -6,7 +6,7 @@ This branch adapts Quiet Tizen for **QN55S95BAFXZA / T-PTMAKUC-1720.7**:
 a small input-and-picture overlay over HDMI. The native overlay preview has
 passed an installed-app test of display, physical-remote navigation, HDMI
 switching and sound. Picture controls support native ranges and readback;
-their visible effect still needs confirmation. Home/startup routing is pending.
+Austin confirmed visible Color Tone changes. Home/startup routing is pending.
 
 See [S95B development and verified compatibility](docs/s95b-overlay.md).
 The upstream U8000F guide below documents a different firmware and is not an

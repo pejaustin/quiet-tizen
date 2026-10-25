@@ -44,11 +44,13 @@ Bixby Promotion container was separately inventoried and tested. Existing
 - Installed into the inventoried Bixby Promotion container using the normal
   registered NUI lifecycle. Austin, 2026-10-25: overlay, navigation, HDMI
   switching, Back, picture and sound all work during the manual-launch test.
+- Austin, 2026-10-25: installed Color Tone control visibly changed the HDMI
+  picture toward Warm2; he restored the starting tone afterward.
 
 ### Not yet confirmed
 
-- Visible picture-setting effect: Austin reported value changes only during
-  the brightness trial; readback alone does not establish rendered output.
+- Brightness-specific visible effect: the earlier temporary trial showed
+  value changes only. Installed Color Tone's visible effect is confirmed.
 - Physical Home-button routing.
 - Full restart, standby/wake and running without the host after installation.
 - Access to advanced native menus from the installed overlay.
@@ -109,7 +111,7 @@ restores a numeric test value only while its context still matches.
 
 ## Next integration steps
 
-1. Confirm visible picture-setting effects and access to advanced native settings.
+1. Verify access to advanced native settings.
 2. Prepare field-specific Home/startup rollback, then assign and test routing.
 3. Verify full restart and standby/wake separately.
 
