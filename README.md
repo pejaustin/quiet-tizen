@@ -1,5 +1,18 @@
 # Quiet Tizen
 
+## Austin's S95B fork
+
+This branch adapts Quiet Tizen for **QN55S95BAFXZA / T-PTMAKUC-1720.7**:
+a small input-and-picture overlay over HDMI. The native overlay preview has
+passed an on-TV display and physical-remote navigation test. Controls are
+currently read-only; persistent Home/startup integration is not installed.
+
+See [S95B development and verified compatibility](docs/s95b-overlay.md).
+The upstream U8000F guide below documents a different firmware and is not an
+S95B installation recipe.
+
+---
+
 A practical, agent-readable guide to making a Samsung Tizen TV quieter and
 more useful as an HDMI display.
 

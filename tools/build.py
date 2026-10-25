@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("target", choices=["payloads", "launcher", "all"])
+    parser.add_argument("target", choices=["payloads", "launcher", "s95b-overlay", "all"])
     parser.add_argument("--dotnet", default=os.environ.get("DOTNET", "dotnet"))
     parser.add_argument("--framework", type=Path, default=ROOT / ".local/tv-framework")
     args = parser.parse_args()
@@ -19,10 +19,14 @@ def main():
     if args.target in ("payloads", "all"):
         for name in ("SamsungTvArchiveRoot", "SamsungTvRootAgent"):
             jobs.append((ROOT / f"vendor/payload-source/{name}.csproj", "payloads", name, []))
-    if args.target in ("launcher", "all"):
+    if args.target in ("launcher", "s95b-overlay", "all"):
         for name in ("Tizen.NUI", "Tizen.Applications.Common", "Tizen.System", "Tizen"):
             if not (args.framework / f"{name}.dll").is_file():
                 parser.error(f"Missing {name}.dll. Read docs/04-launcher.md; these are not bundled.")
+    if args.target == "s95b-overlay":
+        jobs.append((ROOT / "launcher/s95b-overlay/Overlay.csproj", "S95bOverlay", "S95bOverlay",
+                     [f"-p:TV_FRAMEWORK_DIR={args.framework.resolve()}"]))
+    if args.target in ("launcher", "all"):
         for name in ("Home", "QuickLaunch"):
             jobs.append((ROOT / f"launcher/src/{name}.csproj", name, name,
                          [f"-p:TV_FRAMEWORK_DIR={args.framework.resolve()}"]))
