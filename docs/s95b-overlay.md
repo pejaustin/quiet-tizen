@@ -1,5 +1,8 @@
 # S95B overlay port
 
+Historical prototype, superseded by Austin's request to use the actual
+upstream launcher first. See [current Quiet Home installation](s95b-home.md).
+
 ## Owner's design
 
 - Austin, 2026-10-23: simple, responsive input selection and picture settings only.
@@ -51,12 +54,14 @@ Bixby Promotion container was separately inventoried and tested. Existing
 
 - Brightness-specific visible effect: the earlier temporary trial showed
   value changes only. Installed Color Tone's visible effect is confirmed.
-- Physical Home-button routing.
-- Full restart, standby/wake and running without the host after installation.
-- Access to advanced native menus from the installed overlay.
+- Reliable post-restart Home/source integration: initial Home routing worked,
+  but HDMI failed after restart. Shell routing/cleanup were rolled back; see
+  [cleanup results](s95b-cleanup.md). Source switching is not established as
+  reliable by the earlier manual-launch confirmation.
 
 The Bixby Promotion assembly/runtime configuration are replaced. Home/startup
-selectors and registry flags are unchanged. Original package and consistent
+selectors are restored after the failed integration test. Cleanup registry
+changes are documented separately. Original package and consistent
 database snapshots are kept on the TV and in the host's ignored `.local/`.
 
 ## Build
@@ -111,9 +116,9 @@ restores a numeric test value only while its context still matches.
 
 ## Next integration steps
 
-1. Verify access to advanced native settings.
-2. Prepare field-specific Home/startup rollback, then assign and test routing.
-3. Verify full restart and standby/wake separately.
+1. Investigate HDMI failure under replacement Home/sidebar integration before
+   changing routing again. Advanced settings from the overlay is now verified.
+2. Repeat full restart and standby/wake with the eventual integration fix.
 
 ## Installed-app recovery
 

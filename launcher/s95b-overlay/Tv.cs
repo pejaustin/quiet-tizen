@@ -6,6 +6,31 @@ using System.Text.Json;
 
 internal static class Tv
 {
+    [DllImport("libcapi-appfw-app-control.so.0")] private static extern int app_control_create(out IntPtr control);
+    [DllImport("libcapi-appfw-app-control.so.0")] private static extern int app_control_set_app_id(IntPtr control, string id);
+    [DllImport("libcapi-appfw-app-control.so.0")] private static extern int app_control_set_operation(IntPtr control, string operation);
+    [DllImport("libcapi-appfw-app-control.so.0")] private static extern int app_control_add_extra_data(IntPtr control, string key, string value);
+    [DllImport("libcapi-appfw-app-control.so.0")] private static extern int app_control_send_launch_request(IntPtr control, IntPtr callback, IntPtr data);
+    [DllImport("libcapi-appfw-app-control.so.0")] private static extern int app_control_destroy(IntPtr control);
+
+    internal static void OpenAdvancedSettings() => Launch("org.tizen.menu");
+    internal static void OpenViewer() => Launch("org.tizen.tv-viewer");
+
+    private static void Launch(string appId)
+    {
+        int result = app_control_create(out IntPtr control);
+        if (result != 0) throw new InvalidOperationException("Could not create app request");
+        try
+        {
+            result = app_control_set_app_id(control, appId);
+            if (result == 0) result = app_control_set_operation(control, "http://tizen.org/appcontrol/operation/default");
+            if (result == 0 && appId == "org.tizen.menu") result = app_control_add_extra_data(control, "__K_EX_FORCE_BOOST", "enable");
+            if (result == 0 && appId == "org.tizen.menu") result = app_control_add_extra_data(control, "__K_SPLASH_SCREEN", "LA_UI_VR_TRANSPARENT");
+            if (result == 0) result = app_control_send_launch_request(control, IntPtr.Zero, IntPtr.Zero);
+            if (result != 0) throw new InvalidOperationException("App launch failed: " + result);
+        }
+        finally { app_control_destroy(control); }
+    }
     [DllImport("libsource-api.so")] internal static extern IntPtr get_source_list();
     [DllImport("libsource-api.so")] internal static extern int connect_source(int source);
     [DllImport("libvconf.so.0")] internal static extern int vconf_get_int(string key, out int value);

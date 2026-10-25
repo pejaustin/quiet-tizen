@@ -2,13 +2,19 @@
 
 ## Austin's S95B fork
 
-This branch adapts Quiet Tizen for **QN55S95BAFXZA / T-PTMAKUC-1720.7**:
-a small input-and-picture overlay over HDMI. The native overlay preview has
-passed an installed-app test of display, physical-remote navigation, HDMI
-switching and sound. Picture controls support native ranges and readback;
-Austin confirmed visible Color Tone changes. Home/startup routing is pending.
+This branch ports the **actual Quiet Home launcher** to
+**QN55S95BAFXZA / T-PTMAKUC-1720.7 / Samsung .NET 3.1**, retaining upstream's
+layout, artwork, Apps page and Quick Settings. It replaces our earlier custom
+overlay. The owner confirmed Home/startup, HDMI picture and sound, Advanced
+Settings, full restart and standby/wake work.
 
-See [S95B development and verified compatibility](docs/s95b-overlay.md).
+All six cleanup groups are applied: **45 app records** disabled and **nine
+verified service stop markers**, with restart checks and private rollback copies.
+Streaming is through the owner's HDMI device; TV-app launching is untested.
+
+See [current S95B Quiet Home setup](docs/s95b-home.md) and
+[cleanup results and recovery](docs/s95b-cleanup.md).
+The [overlay notes](docs/s95b-overlay.md) are historical prototype research.
 The upstream U8000F guide below documents a different firmware and is not an
 S95B installation recipe.
 

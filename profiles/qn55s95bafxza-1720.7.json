@@ -1,0 +1,102 @@
+{
+  "profile_version": 1,
+  "model": "QN55S95BAFXZA",
+  "firmware": "T-PTMAKUC-1720.7",
+  "build_id": "T-PTMAKUC-REL-202602250225",
+  "os": "Tizen 6.5",
+  "runtime": "3.1",
+  "registry": "/opt/dbspace/.pkgmgr_parser.db",
+  "groups": {
+    "advertising": {
+      "description": "Installed upstream advertising/analysis targets, inventoried on S95B.",
+      "app_ids": [
+        "com.samsung.tizen.samsung-analytics",
+        "com.samsung.tv.acr",
+        "com.samsung.tv.canalysis-service",
+        "com.samsung.tv.contents-recognition-dbmgr",
+        "com.samsung.tv.adagent-service",
+        "com.samsung.tv.pisa-service",
+        "org.tizen.pisa-control-service",
+        "com.samsung.tv.targeted-ad-service"
+      ]
+    },
+    "voice": {
+      "description": "Installed upstream voice targets. Accessibility TTS and screen reader remain enabled.",
+      "app_ids": [
+        "com.samsung.tv.alexa-client",
+        "com.samsung.tv.alexa-fullscreen-app",
+        "com.samsung.tv.bixby-context-client",
+        "com.samsung.tv.bixby-prov",
+        "com.samsung.tv.bixbycapsuleviewer",
+        "com.samsung.tv.mybixby",
+        "com.samsung.tv.ondevice-voice",
+        "com.samsung.tv.utterance-recommender-app",
+        "com.samsung.tv.utterance-recommender-core",
+        "com.samsung.tv.voice-instant-app",
+        "com.samsung.tv.voiceassistant-music",
+        "com.samsung.tv.wakeup-engine-alexa",
+        "com.samsung.tv.wakeup-engine-bixby",
+        "org.tizen.voice-app",
+        "org.tizen.voice-app-service",
+        "org.tizen.voice-client",
+        "org.tizen.voice-onboarding"
+      ]
+    },
+    "context": {
+      "description": "Installed upstream context and content-grab targets.",
+      "app_ids": [
+        "com.samsung.tv.context-aware-agent",
+        "com.samsung.tv.context-aware-agent-toast-view",
+        "com.samsung.tv.context-aware-grab-control",
+        "com.samsung.tv.context-aware-server-requester",
+        "com.samsung.tv.context-aware-service",
+        "com.samsung.tv.vif",
+        "content-grab-service"
+      ]
+    },
+    "smart-extras": {
+      "description": "Installed upstream SmartThings, gaming, health and promotion helpers.",
+      "app_ids": [
+        "com.samsung.tizen.smartthings-client",
+        "com.samsung.tv.adplayer",
+        "com.samsung.tv.aov-dashboard",
+        "com.samsung.tv.ghdaemon",
+        "com.samsung.tv.ghservice",
+        "com.samsung.tv.smartthingsfind-daemon",
+        "com.samsung.tv.smartthingsfind-ondemand",
+        "samsunghealth-service-tv"
+      ]
+    },
+    "tv-plus": {
+      "description": "S95B TV Plus app, deep-link entry and slive provider, inventoried on this device.",
+      "app_ids": [
+        "com.samsung.tv.tvplus",
+        "com.samsung.tv.tvPlusDeeplinker",
+        "com.samsung.tv.slive-daemon"
+      ]
+    },
+    "light-shell": {
+      "description": "Apply only after replacement launcher/settings routing is validated.",
+      "app_ids": ["com.samsung.tv.home.sidebar", "org.tizen.browser"]
+    }
+  },
+  "stop_markers": [
+    {"unit": "pisa-service.service", "marker": "pisa-service", "group": "advertising"},
+    {"unit": "canalysis-service.service", "marker": "canalysis-daemon", "group": "advertising"},
+    {"unit": "com.samsung.tv.ondevice-voice.service", "marker": "com.samsung.tv.ondevice-voice", "group": "voice"},
+    {"unit": "org.tizen.voice-app.service", "marker": "org.tizen.voice-app", "group": "voice"},
+    {"unit": "com.samsung.tv.context-aware-agent.service", "marker": "com.samsung.tv.context-aware-agent", "group": "context"},
+    {"unit": "com.samsung.tv.context-aware-service.service", "marker": "com.samsung.tv.context-aware-service", "group": "context"},
+    {"unit": "com.samsung.tv.ghdaemon.service", "marker": "com.samsung.tv.ghdaemon", "group": "smart-extras"},
+    {"unit": "samsunghealth-service-tv.service", "marker": "samsunghealth-service-tv", "group": "smart-extras"},
+    {"unit": "slive-provider-daemon.service", "marker": "slive-provider-daemon", "group": "tv-plus"}
+  ],
+  "runtime_only_masks": ["contents-recognition-service.service", "org.tizen.tv.sp-kpi.service", "data-service.service"],
+  "preferences": [
+    {"key": "db/was/preload_by_country", "type": "string", "value": "false"},
+    {"key": "db/menu/autorun_tv_plus", "type": "bool", "value": "0"},
+    {"key": "db/menu/voice/wakeupless_status", "type": "int", "value": "0"},
+    {"key": "db/si_service/voice_recog_enable", "type": "bool", "value": "0"},
+    {"key": "db/multi-assistant/prelaunch_mode", "type": "bool", "value": "0"}
+  ]
+}

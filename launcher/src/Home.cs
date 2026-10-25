@@ -57,7 +57,11 @@ public sealed class QuietHome : NUIApplication
  [DllImport("libsettings-api.so")] static extern bool CSharpGetItemValue(string id,out string name,out string value);
  [DllImport("libsettings-api.so")] static extern bool CSharpSetItemValue(string id,string value);
  [DllImport("libsettings-api.so")] static extern bool CSharpGetItemEnable(string id,out bool enabled);
- [DllImport("libsettings-api.so")] static extern bool CSharpGetItemMinMaxStepValue(string id,out double min,out double max,out double step);
+#if S95B
+  [DllImport("libsettings-api.so",EntryPoint="settings_get_item_minmax_step")] static extern bool CSharpGetItemMinMaxStepValue(string id,out double min,out double max,out double step);
+#else
+  [DllImport("libsettings-api.so")] static extern bool CSharpGetItemMinMaxStepValue(string id,out double min,out double max,out double step);
+#endif
 
 
 
@@ -66,8 +70,8 @@ public sealed class QuietHome : NUIApplication
   base.OnCreate();
   try{fontLoaded=FontClient.Instance.AddCustomFontDirectory(Root+"fonts");}catch{fontLoaded=false;}
   try{library=AppLibrary.Load(Root+"apps.json");}catch(Exception ex){libraryError=ex.Message;}
-  Window.Default.BackgroundColor=new Color(0.96f,0.96f,0.97f,1);
-  Window.Default.Title="Quiet Home";Window.Default.KeyEvent+=OnKey;
+   GetDefaultWindow().BackgroundColor=new Color(0.96f,0.96f,0.97f,1);
+   GetDefaultWindow().Title="Quiet Home";GetDefaultWindow().KeyEvent+=OnKey;
   PreloadArtwork();
   RefreshSource();selected=SourceIndex();BuildPage();
   clockTimer=new Tizen.NUI.Timer(30000);
@@ -80,7 +84,7 @@ public sealed class QuietHome : NUIApplication
  void OpenSettings(string activity){clockTimer?.Start();page=2;area=1;selected=0;editing="";BuildPage();WriteState(activity);}
  void RefreshSource(){try{int n;if(vconf_get_int("memory/system/source_type",out n)==0&&n>=13&&n<=15)lastSource=n;}catch{}}
  int SourceIndex(){return lastSource==15?1:lastSource==13?2:0;}
- View Add(View v){scene.Add(v);Window.Default.Add(v);return v;}
+  View Add(View v){scene.Add(v);GetDefaultWindow().Add(v);return v;}
  View Panel(int x,int y,int w,int h,Color color,int radius=18){return Add(new View{Position2D=new Position2D(x,y),Size2D=new Size2D(w,h),BackgroundColor=color,CornerRadius=new Vector4(radius,radius,radius,radius)});}
  TextLabel Text(string text,int x,int y,int w,int h,float size,Color color,string face="Medium")
  {return (TextLabel)Add(Label(text,x,y,w,h,size,color,face));}
@@ -91,7 +95,7 @@ public sealed class QuietHome : NUIApplication
   var stopwatch=Stopwatch.StartNew();
   if(focusAnimation!=null){focusAnimation.Stop();focusAnimation.Dispose();focusAnimation=null;}
   ParkArtwork();pageArtworkCold=0;
-  foreach(var v in scene){Window.Default.Remove(v);v.Dispose();}scene.Clear();slots.Clear();
+   foreach(var v in scene){GetDefaultWindow().Remove(v);v.Dispose();}scene.Clear();slots.Clear();
   Add(new ImageView{ResourceUrl=Root+"free-background.svg",Size2D=new Size2D(1920,1080)});
   Text(page==0?"Home":page==1?"Your Apps":"Quick Settings",76,55,1350,100,76,ink,"Display");
   tabs=new TextLabel[3];string[] nav={"Inputs","Apps","Settings"};int[] tx={54,221,366};int[] tw={153,131,182};
@@ -179,7 +183,7 @@ public sealed class QuietHome : NUIApplication
   // Keep the real image views alive on the scene; moving between pages never
   // destroys their decoded textures. The zero-opacity parent is never drawn.
   artworkPreloadRoot=new View{Size2D=new Size2D(1920,1080),Opacity=0};
-  Window.Default.Add(artworkPreloadRoot);
+   GetDefaultWindow().Add(artworkPreloadRoot);
   foreach(var app in library)if(!app.Utility)GetArtwork(app,328,184);
   foreach(var id in new[]{"org.tizen.netflix-app","com.samsung.tv.cobalt-yt","org.tizen.primevideo"}){
    var app=library.Find(a=>a.Id==id);if(app!=null)GetArtwork(app,253,126);
@@ -195,7 +199,9 @@ public sealed class QuietHome : NUIApplication
   var image=new ImageView{
    Position2D=new Position2D((w-iw)/2,(h-ih)/2),Size2D=new Size2D(iw,ih),
    FittingMode=cover?FittingModeType.ScaleToFill:FittingModeType.ShrinkToFit,
+#if !S95B
    SamplingMode=SamplingModeType.BoxThenLanczos,
+#endif
    DesiredWidth=(int)Math.Ceiling(iw*2/cropWidth),DesiredHeight=(int)Math.Ceiling(ih*2/cropHeight),
    ReleasePolicy=ReleasePolicyType.Destroyed,CornerRadius=new Vector4(18,18,18,18)};
   if(crop!=null)image.PixelArea=new RelativeVector4(crop[0],crop[1],crop[2],crop[3]);

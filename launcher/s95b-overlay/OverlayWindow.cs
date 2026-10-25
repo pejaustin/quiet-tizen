@@ -16,6 +16,7 @@ internal sealed class OverlayWindow : NUIApplication
     {
         internal string Title, Key;
         internal int Source;
+        internal bool Advanced;
         internal TextLabel Label;
     }
     private readonly List<Row> rows = new List<Row>();
@@ -159,6 +160,7 @@ internal sealed class OverlayWindow : NUIApplication
             if (!Tv.CSharpGetItemVisible(key, out bool visible) || !visible) continue;
             if (Tv.CSharpGetItemValue(key, out string label, out string value)) rows.Add(new Row { Key = key, Title = names[i] });
         }
+        rows.Add(new Row { Advanced = true, Title = "Advanced settings" });
     }
 
     private void OnKey(object sender, Tizen.NUI.Window.KeyEventArgs args)
@@ -179,9 +181,19 @@ internal sealed class OverlayWindow : NUIApplication
         try
         {
             Row row = rows[selected];
+            if (row.Advanced && (key == "Return" || key == "KP_Enter"))
+            {
+                Tv.OpenAdvancedSettings();
+                quitPreview();
+                return;
+            }
             if (row.Source != 0 && (key == "Return" || key == "KP_Enter"))
             {
-                if (Tv.connect_source(row.Source) != 0) throw new InvalidOperationException("Input request failed");
+                int result = Tv.connect_source(row.Source);
+                WriteState("source_request:" + row.Source + ":" + result);
+                // Match upstream's API convention: only negative results are errors.
+                if (result < 0) throw new InvalidOperationException("Input request failed: " + result);
+                Tv.OpenViewer();
                 pendingSource = row.Source;
                 pendingAt = Stopwatch.GetTimestamp();
                 status.Text = "Switching input…";
@@ -200,6 +212,7 @@ internal sealed class OverlayWindow : NUIApplication
 
     private string RowText(Row row)
     {
+        if (row.Advanced) return row.Title;
         if (row.Source != 0)
         {
             Tv.vconf_get_int("memory/system/source_type", out int current);

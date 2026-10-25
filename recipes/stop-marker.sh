@@ -21,7 +21,8 @@ if [ "$action" = apply ]; then
     if [ -e "$path" ]; then printf 'present\n'; else printf 'absent\n'; fi > "$saved"
     systemctl is-active "$unit" > "$saved.active" || true
     touch "$path"
-    systemctl stop "$unit"
+    # Return inside the root session's command budget; verify completion separately.
+    systemctl --no-block stop "$unit"
 else
     test -f "$saved"
     case "$(cat "$saved")" in
@@ -31,6 +32,6 @@ else
     esac
     systemctl reset-failed "$unit" || true
     # Restore registry flags first. Restart only a service that was active.
-    if [ "$(cat "$saved.active")" = active ]; then systemctl start "$unit"; fi
+    if [ "$(cat "$saved.active")" = active ]; then systemctl --no-block start "$unit"; fi
 fi
 systemctl show -p Id -p ActiveState -p ConditionResult "$unit"
