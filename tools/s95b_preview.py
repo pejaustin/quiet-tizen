@@ -3,6 +3,7 @@
 import argparse
 import ipaddress
 import json
+import shlex
 from pathlib import Path, PurePosixPath
 import subprocess
 import sys
@@ -24,7 +25,10 @@ def main():
     parser.add_argument("--sdb", required=True, type=Path)
     parser.add_argument("--root-cli", type=Path)
     parser.add_argument("--seconds", type=int, default=8)
-    parser.add_argument("--inspect", action="store_true")
+    mode = parser.add_mutually_exclusive_group()
+    mode.add_argument("--inspect", action="store_true")
+    mode.add_argument("--controls", action="store_true", help="Enable remote-triggered input and picture changes")
+    mode.add_argument("--restore", nargs=5, metavar=("KEY", "EXPECTED", "ORIGINAL", "SOURCE", "MODE"), help="Restore a numeric setting only if its source, mode and current value still match")
     parser.add_argument("--log", required=True, type=Path)
     args = parser.parse_args()
     ipaddress.IPv4Address(args.host)
@@ -49,7 +53,9 @@ def main():
     try:
         for name in files:
             client.push(build / name, remote / name)
-        action = "--inspect" if args.inspect else f"--preview {args.seconds}"
+        action = "--inspect" if args.inspect else f"{'--controls' if args.controls else '--preview'} {args.seconds}"
+        if args.restore:
+            action = shlex.join(["--restore", *args.restore])
         command = f"/usr/bin/dotnet {remote}/Overlay.dll {action} 2>{remote}/ui.log"
         if args.root_cli:
             result = subprocess.run([

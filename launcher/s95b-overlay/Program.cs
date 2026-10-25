@@ -16,20 +16,39 @@ internal static class Program
             Tv.Inspect();
             return 0;
         }
-        if (args.Length == 2 && args[0] == "--preview" && int.TryParse(args[1], out int seconds) && seconds >= 1 && seconds <= 300)
+        if (args.Length == 6 && args[0] == "--restore" && int.TryParse(args[4], out int source))
         {
-            try { RunOverlay(seconds); return 0; }
+            try { Tv.Restore(args[1], args[2], args[3], source, args[5]); return 0; }
+            catch (Exception error) { Console.Error.WriteLine(error.Message); return 1; }
+        }
+        if (args.Length == 2 && (args[0] == "--preview" || args[0] == "--controls") && int.TryParse(args[1], out int seconds) && seconds >= 1 && seconds <= 300)
+        {
+            try { RunOverlay(seconds, args[0] == "--controls"); return 0; }
             catch (Exception error) { Console.Error.WriteLine(error); return 1; }
         }
-        Console.Error.WriteLine("Use --inspect or --preview SECONDS (1–300).");
-        return 2;
+        try { RunRegistered(args); return 0; }
+        catch (Exception error) { Console.Error.WriteLine(error); return 1; }
     }
 
     [MethodImpl(MethodImplOptions.NoInlining)]
-    static void RunOverlay(int seconds)
+    static void RunOverlay(int seconds, bool interactive)
     {
-        Environment.SetEnvironmentVariable("XDG_RUNTIME_DIR", "/run/user/5001");
+        SetPreviewEnvironment();
+        using (var app = new OverlayWindow(seconds, interactive)) app.RunPreview();
+    }
+
+    static void SetPreviewEnvironment()
+    {
+        Environment.SetEnvironmentVariable("XDG_RUNTIME_DIR", "/run");
         Environment.SetEnvironmentVariable("WAYLAND_DISPLAY", "wayland-0");
-        using (var app = new OverlayWindow(seconds)) app.RunPreview();
+        Environment.SetEnvironmentVariable("DBUS_SESSION_BUS_ADDRESS", "kernel:path=/sys/fs/kdbus/5001-user/bus");
+    }
+
+    [MethodImpl(MethodImplOptions.NoInlining)]
+    static void RunRegistered(string[] args)
+    {
+        // Registered application launch uses the vendor-provided environment
+        // and lifecycle. The host is not required for rendering or navigation.
+        using (var app = new OverlayWindow(90, true)) app.Run(args.Length == 0 ? new[] { "quiet-s95b" } : args);
     }
 }

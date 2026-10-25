@@ -23,7 +23,8 @@ Native source/settings interfaces follow Quiet Tizen and samsung-tv-root researc
 | Main-operation Home handler | com.samsung.tv.csfs |
 
 The upstream U8000F uses .NET 6 and Tizen 9. Its installation container, cleanup
-groups and boot recipes have **not** been validated on this device. Existing
+groups and boot recipes must not be reused without validation. The S95B's
+Bixby Promotion container was separately inventoried and tested. Existing
 `tools/tv.py` mutation commands still target only the upstream U8000F profile.
 
 ### Confirmed on TV
@@ -36,15 +37,25 @@ groups and boot recipes have **not** been validated on this device. Existing
 - Austin confirmed the physical Up/Down keys move the highlight and Back closes
   the panel, 2026-10-24. Callback logs independently recorded those keys.
 - Preview stopped cleanly and its staged files were removed.
+- Native slider ranges and full choice lists were live-verified, including
+  per-choice enablement and visibility.
+- Brightness writes read back correctly during the remote trial. The original
+  value of 50 was restored with source/mode/value guards and verified readback.
+- Installed into the inventoried Bixby Promotion container using the normal
+  registered NUI lifecycle. Austin, 2026-10-25: overlay, navigation, HDMI
+  switching, Back, picture and sound all work during the manual-launch test.
 
 ### Not yet confirmed
 
-- Input switching and picture writes from this overlay.
-- Permanent package installation and physical Home-button routing.
+- Visible picture-setting effect: Austin reported value changes only during
+  the brightness trial; readback alone does not establish rendered output.
+- Physical Home-button routing.
 - Full restart, standby/wake and running without the host after installation.
-- Audio preservation during source changes and access to advanced native menus.
+- Access to advanced native menus from the installed overlay.
 
-No stock app assembly, Home/startup selector or picture setting has been changed.
+The Bixby Promotion assembly/runtime configuration are replaced. Home/startup
+selectors and registry flags are unchanged. Original package and consistent
+database snapshots are kept on the TV and in the host's ignored `.local/`.
 
 ## Build
 
@@ -75,7 +86,9 @@ python3 tools/s95b_preview.py --host "$TV_IP" --sdb "$SDB" \
 The runner checks the exact model and live build, uploads to a unique staging
 directory, and removes its own files afterward. `--inspect` reads APIs instead
 of opening a window. Preview values are read-only. Up/Down navigates, Back
-closes, and the timer bounds the session. This is not a permanent installation.
+closes, and the timer bounds the session. `--controls` enables OK for inputs
+and Left/Right for picture settings. `--restore KEY EXPECTED ORIGINAL SOURCE MODE`
+restores a numeric test value only while its context still matches.
 
 ## Porting findings
 
@@ -87,22 +100,34 @@ closes, and the timer bounds the session. This is not a permanent installation.
   by the working NUI path. No kernel memory patches were attempted.
 - `CSharpGetItemMinMaxStepValue` from upstream Quiet Home is absent. An older
   `settings_get_item_minmax_step` export was found by offline binary inspection,
-  but calling it is not yet live-verified. Do not silently assume slider bounds.
+   and live-verified with double outputs. Use native slider bounds.
 - `CSharpGetItemDataList` truncates the long picture-mode list; do not treat that
   buffer as complete. The older `settings_get_item_data_list` export is another
-  lead for a full list, also not yet live-verified.
+   live-verified source of the complete allocated JSON string.
 - Main-operation Home lookup works. `.app-context.db` lacks the normal XF86Home
   override used on QN90A. Do not copy another model's routing rows.
 
 ## Next integration steps
 
-1. Port and verify complete settings choices/ranges, then wire source and settings
-   actions with native availability checks and readback.
-2. Inventory the S95B's actual app containers, metadata, labels and routing schema.
-3. Prepare private consistent snapshots and specific inverse operations before
-   any package/routing change, following the upstream phased workflow.
-4. Test a manually launched installed overlay before Home/startup assignment.
-5. Verify source/audio, native settings access, restart and standby/wake.
+1. Confirm visible picture-setting effects and access to advanced native settings.
+2. Prepare field-specific Home/startup rollback, then assign and test routing.
+3. Verify full restart and standby/wake separately.
+
+## Installed-app recovery
+
+The S95B-specific recipes are `s95b-backup-launcher.sh`,
+`s95b-install-launcher.sh`, and `s95b-restore-launcher.sh` under `recipes/`.
+The verified snapshot is `s95b-overlay-20261025` under
+`/opt/usr/share/quiet-tizen-backups/`; a hash-verified `recovery.tar.gz` is also
+saved at `.local/backups/s95b-overlay-20261025/` on the host.
+The on-TV snapshot includes `restore-launcher.sh`. Run it through the reviewed
+temporary-root route with the snapshot name as its argument to restore the
+two stock files and native-image cache. It checks for file drift first and
+does not overwrite live databases. These recipes do not change Home selectors.
+
+Manual launch uses `app_launcher -u 5001 -s com.samsung.tv.bixby-promotion`.
+The installed app exits after 90 seconds of inactivity or Back; it uses the
+vendor-provided environment and does not require a host rendering process.
 
 Raw logs, network addresses, binaries and private backups belong under `.local/`.
 Visual choices not approved by Austin remain listed in `PLACEHOLDERS.md`.
