@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="280" height="442" viewBox="0 0 280 442">
+ <defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#235d90"/><stop offset="1" stop-color="#15283f"/></linearGradient><linearGradient id="front" x2="1" y2="1"><stop stop-color="#333941"/><stop offset="1" stop-color="#11171f"/></linearGradient><clipPath id="clip"><rect width="280" height="442" rx="18"/></clipPath></defs>
+ <g clip-path="url(#clip)"><rect width="280" height="442" fill="url(#bg)"/><circle cx="242" cy="72" r="170" fill="#58b9d6" opacity=".16"/><circle cx="240" cy="72" r="117" fill="none" stroke="#a0deec" opacity=".2"/><path d="M-40 370L310 170" stroke="#66bbd6" stroke-width="55" opacity=".08"/>
+ <ellipse cx="144" cy="336" rx="101" ry="17" fill="#071a2a" opacity=".5"/>
+ <path d="M44 165L113 128L237 157L170 196Z" fill="#4e5864"/><path d="M170 196L237 157V287L170 328Z" fill="#10171e"/><path d="M44 165L170 196V328L44 297Z" fill="url(#front)"/>
+ <path d="M52 174L160 200" stroke="#74818d" opacity=".5"/><path d="M55 281L159 307" stroke="#4fb8e9" stroke-width="4" stroke-linecap="round"/><circle cx="149" cy="220" r="4" fill="#bddfeb"/><path d="M64 223L78 227M64 235L78 239" stroke="#04090e" stroke-width="5"/>
+ <g stroke="#35414c" stroke-width="3"><path d="M184 208L224 184M184 218L224 194M184 228L224 204M184 238L224 214M184 248L224 224M184 258L224 234M184 268L224 244M184 278L224 254"/></g></g>
+</svg>

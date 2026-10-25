@@ -12,6 +12,10 @@ All six cleanup groups are applied: **45 app records** disabled and **nine
 verified service stop markers**, with restart checks and private rollback copies.
 Streaming is through the owner's HDMI device; TV-app launching is untested.
 
+Device cards now match the owner's connections: Fire TV Stick (featured,
+HDMI 3), Steam Machine (HDMI 2), Nintendo Switch (HDMI 1), and PS4 (HDMI 4).
+Powered-off devices remain listed.
+
 See [current S95B Quiet Home setup](docs/s95b-home.md) and
 [cleanup results and recovery](docs/s95b-cleanup.md).
 The [overlay notes](docs/s95b-overlay.md) are historical prototype research.

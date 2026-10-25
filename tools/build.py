@@ -57,6 +57,9 @@ def main():
         if assets.exists():
             shutil.rmtree(assets)
         shutil.copytree(ROOT / "launcher/assets", assets)
+        if s95b:
+            shutil.copyfile(assets / "inputs.s95b.json", assets / "inputs.json")
+        (assets / "inputs.s95b.json").unlink(missing_ok=True)
         local_catalog = ROOT / "launcher/assets/apps.local.json"
         if local_catalog.exists():
             shutil.copyfile(local_catalog, assets / "apps.json")

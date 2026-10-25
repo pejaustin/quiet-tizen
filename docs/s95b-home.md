@@ -21,10 +21,26 @@ Build: `.local/build/S95bHome/`. Package: `.local/package-s95b/`, including the
 runtime configuration and original assets. No Samsung references are bundled.
 All 12 upstream catalog IDs were found in the TV's registry.
 
-Original example console labels/art remain for this baseline: HDMI 3 says
-Nintendo Switch but connects to Austin's Fire TV; HDMI 2 says PlayStation but
-the observed device was PC. HDMI 1 is an upstream example absent from the
-enumerated source list. These are demo content, not owner-designed labels.
+## Owner's device cards
+
+Austin, 2026-10-25: HDMI 1 is Nintendo Switch, HDMI 2 Steam Machine, HDMI 3
+Fire TV Stick, HDMI 4 PS4. The Switch and PS4 are connected but currently off.
+He chose Fire TV for the large card and device artwork, and confirmed the
+installed artwork/layout, navigation across all four cards, and HDMI 3 playback.
+
+`launcher/assets/inputs.s95b.json` configures those four devices. The S95B build
+copies it to the package's `quiet-home/inputs.json`; generic builds retain the
+upstream three example devices. `InputLibrary` validates unique source IDs,
+local artwork paths and supported card count. Current-source focus and Back
+now include HDMI 4. Cards are configured independently of source detection,
+so powered-off devices remain available. HDMI 1/4 playback awaits powered-on
+testing. The home row retains Quiet Home styling, with Fire TV as an 800-pixel
+featured card and three 280-pixel cards. The two input dock shortcuts match
+Fire TV and Steam Machine.
+
+New Fire TV, Steam Machine and PS4 artwork consists of original vector device
+illustrations; Switch artwork is the existing upstream asset. These replace
+the example PlayStation 5/Switch assignments on the S95B.
 
 ## Verified installation
 
@@ -66,6 +82,10 @@ nonpersistent; vendor services without those persistent controls can run again.
 See [cleanup evidence](s95b-cleanup.md).
 
 Later snapshots under `/opt/usr/share/quiet-tizen-backups/`:
+
+- `s95b-device-cards-20261025`: pre-card-update DLL, complete resource archive,
+  before/after hashes and `restore.sh`. Host copies are under the same name
+  in `.local/backups/`. Undo this update before earlier app rollback layers.
 
 - `s95b-quiet-home-20261025`: previous overlay DLL/runtime configuration,
   before/expected hashes, and `restore.sh`.

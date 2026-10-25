@@ -1,0 +1,5 @@
+[
+ {"Name":"PlayStation 5","Source":14,"Artwork":"feature-ps5.svg","DockArtwork":"free-dock-ps5.svg"},
+ {"Name":"Nintendo Switch","Source":15,"Artwork":"feature-switch.svg","DockArtwork":"free-dock-switch.svg"},
+ {"Name":"HDMI 1","Source":13,"Artwork":"feature-hdmi.svg","DockArtwork":"free-dock-apps.svg"}
+]

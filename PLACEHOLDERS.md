@@ -1,9 +1,9 @@
 # S95B customization placeholders
 
-- Current Quiet Home retains upstream example console names/artwork. These
-  are inherited demo content, not Austin's device names. Austin requested the
-  upstream baseline first on 2026-10-25. Observed inputs include PC on HDMI 2
-  and Fire TV on HDMI 3; the upstream cards say PlayStation and Switch.
+- S95B device cards are settled: Austin supplied all four device names/ports,
+  selected Fire TV as the large card and device artwork, then confirmed the
+  installed result looks good and works (2026-10-25). Upstream example inputs
+  remain only in the generic `inputs.json`; S95B builds use `inputs.s95b.json`.
 
 - `launcher/s95b-overlay/OverlayWindow.cs`: prototype layout, typography, colors
   and helper wording. Austin chose a small overlay, but has not approved this

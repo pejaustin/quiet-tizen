@@ -1,0 +1,6 @@
+[
+ {"Name":"Fire TV Stick","Source":15,"Artwork":"feature-fire-tv.svg","DockArtwork":"free-dock-fire-tv.svg"},
+ {"Name":"Steam Machine","Source":14,"Artwork":"feature-steam-machine.svg","DockArtwork":"free-dock-steam-machine.svg"},
+ {"Name":"Nintendo Switch","Source":13,"Artwork":"feature-switch.svg","DockArtwork":"free-dock-switch.svg"},
+ {"Name":"PS4","Source":16,"Artwork":"feature-ps4.svg","DockArtwork":"free-dock-ps4.svg"}
+]
