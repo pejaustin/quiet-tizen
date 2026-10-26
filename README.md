@@ -12,9 +12,12 @@ All six cleanup groups are applied: **45 app records** disabled and **nine
 verified service stop markers**, with restart checks and private rollback copies.
 Streaming is through the owner's HDMI device; TV-app launching is untested.
 
-Device cards now match the owner's connections: Fire TV Stick (featured,
-HDMI 3), Steam Machine (HDMI 2), Nintendo Switch (HDMI 1), and PS4 (HDMI 4).
-Powered-off devices remain listed.
+Device cards use Samsung's HDMI-CEC names and source metadata, with matching
+local artwork. Generic or unknown devices show **HDMI N**, not custom aliases.
+All four ports remain listed. Verified detection: Fire TV Stick on HDMI 3
+(featured), Steam Machine on HDMI 2, and Switch 2 on HDMI 4; HDMI 1 currently
+uses the generic fallback. The mixed shortcut dock is removed and cards are
+centered below the header.
 
 See [current S95B Quiet Home setup](docs/s95b-home.md) and
 [cleanup results and recovery](docs/s95b-cleanup.md).

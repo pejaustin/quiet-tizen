@@ -21,6 +21,7 @@ public sealed class QuietHome : NUIApplication
  int artworkViewsCreated,pageArtworkCold;
   List<LibraryApp> library=new List<LibraryApp>();
   List<HomeInput> inputs;
+  string inputDiscoveryError="";
  int libraryPage;
  string libraryError="";
  TextLabel clock, notice, detail;
@@ -43,7 +44,13 @@ public sealed class QuietHome : NUIApplication
  readonly Color muted=new Color(0.431f,0.431f,0.451f,1);
  readonly Color white=new Color(1,1,1,1);
  readonly Color accent=new Color(0.24f,0.29f,0.72f,1);
- [DllImport("libsource-api.so")] static extern int connect_source(int sourceType);
+  [DllImport("libsource-api.so")] static extern int connect_source(int sourceType);
+  [DllImport("libsource-api.so")] static extern IntPtr get_source_list();
+  [DllImport("libc.so.6")] static extern void free(IntPtr pointer);
+  [DllImport("libhdmicec-api.so.0")] static extern int cec_get_device_count(int includeReceiver,out int count);
+  [DllImport("libhdmicec-api.so.0")] static extern int cec_get_device_port_num(int index,out int port);
+  [DllImport("libhdmicec-api.so.0")] static extern int cec_get_device_name(int index,out IntPtr name);
+  [DllImport("libglib-2.0.so.0")] static extern void g_free(IntPtr pointer);
  [DllImport("libvconf.so.0")] static extern int vconf_get_int(string key,out int value);
  [DllImport("libcapi-appfw-app-control.so.0")] static extern int app_control_create(out IntPtr app);
  [DllImport("libcapi-appfw-app-control.so.0")] static extern int app_control_set_app_id(IntPtr app,string id);
@@ -77,12 +84,47 @@ public sealed class QuietHome : NUIApplication
   PreloadArtwork();
   RefreshSource();selected=SourceIndex();BuildPage();
   clockTimer=new Tizen.NUI.Timer(30000);
-  clockTimer.Tick+=(s,e)=>{if(clock!=null)clock.Text=DateTime.Now.ToString("h:mm tt");return true;};clockTimer.Start();WriteState("created");
+   clockTimer.Tick+=(s,e)=>{if(clock!=null)clock.Text=DateTime.Now.ToString("h:mm tt");if(page==0&&RefreshInputs())BuildPage();return true;};clockTimer.Start();WriteState("created");
  }
- protected override void OnResume(){base.OnResume();clockTimer?.Start();RefreshSource();if(tabs!=null&&page==2){RefreshSettings();UpdateFocus(false);}WriteState("resumed");}
+ protected override void OnResume(){base.OnResume();clockTimer?.Start();RefreshSource();if(tabs!=null&&page==0&&RefreshInputs())BuildPage();if(tabs!=null&&page==2){RefreshSettings();UpdateFocus(false);}WriteState("resumed");}
  protected override void OnAppControlReceived(AppControlReceivedEventArgs e){base.OnAppControlReceived(e);string requested; if(e.ReceivedAppControl.ExtraData.TryGet("quiet_page",out requested)&&requested=="settings")OpenSettings("settings_request");else if(requested=="apps"){page=1;area=1;selected=0;BuildPage();}else Home("home_request");}
  protected override void OnPause(){base.OnPause();editing="";clockTimer?.Stop();WriteState("paused");}
- void Home(string activity){clockTimer?.Start();RefreshSource();if(tabs!=null){bool unchanged=page==0&&area==1&&editing==""&&selected==SourceIndex();page=0;area=1;editing="";selected=SourceIndex();if(!unchanged)BuildPage();WriteState(activity);}}
+ void Home(string activity){clockTimer?.Start();RefreshSource();bool inputsChanged=RefreshInputs();if(tabs!=null){bool unchanged=!inputsChanged&&page==0&&area==1&&editing==""&&selected==SourceIndex();page=0;area=1;editing="";selected=SourceIndex();if(!unchanged)BuildPage();WriteState(activity);}}
+ bool RefreshInputs()
+ {
+#if S95B
+  IntPtr data=IntPtr.Zero;
+  bool changed;
+  var cecNames=new Dictionary<int,string>();
+  inputDiscoveryError="";
+  try{
+   int count;
+   if(cec_get_device_count(1,out count)!=0||count<0||count>16)throw new InvalidDataException("CEC device list unavailable.");
+   for(int i=0;i<count;i++){
+    int port;IntPtr name=IntPtr.Zero;
+    if(cec_get_device_port_num(i,out port)!=0||port<1||port>4)continue;
+    try{
+     if(cec_get_device_name(i,out name)==0&&name!=IntPtr.Zero){
+      // Multiple devices behind a receiver cannot identify a unique port card.
+      if(cecNames.ContainsKey(port))cecNames[port]=null;
+      else cecNames[port]=Marshal.PtrToStringAnsi(name);
+     }
+    }finally{if(name!=IntPtr.Zero)g_free(name);}
+   }
+  }catch(Exception ex){inputDiscoveryError="CEC:"+ex.GetType().Name;cecNames.Clear();}
+  try{
+   data=get_source_list();
+   if(data==IntPtr.Zero)throw new InvalidDataException("Native source list unavailable.");
+   changed=InputLibrary.ApplyDiscovery(inputs,Marshal.PtrToStringAnsi(data),cecNames);
+  }catch(Exception ex){inputDiscoveryError+=" Source:"+ex.GetType().Name;changed=InputLibrary.ApplyDiscovery(inputs,null,cecNames);}
+  // Verified on this firmware: GetSourceList returns strdup-owned memory.
+  finally{if(data!=IntPtr.Zero)free(data);}
+  try{File.WriteAllText("/tmp/quiet-home-inputs.json",System.Text.Json.JsonSerializer.Serialize(new {Error=inputDiscoveryError,Inputs=inputs}));}catch{}
+  return changed;
+#else
+  return false;
+#endif
+ }
  void OpenSettings(string activity){clockTimer?.Start();page=2;area=1;selected=0;editing="";BuildPage();WriteState(activity);}
   void RefreshSource(){try{int n;if(vconf_get_int("memory/system/source_type",out n)==0&&InputLibrary.IndexOf(inputs,n)>=0)lastSource=n;}catch{}}
   int SourceIndex(){return Math.Max(0,InputLibrary.IndexOf(inputs,lastSource));}
@@ -94,6 +136,7 @@ public sealed class QuietHome : NUIApplication
  {return new TextLabel{Text=text,Position2D=new Position2D(x,y),Size2D=new Size2D(w,h),PixelSize=size,FontFamily="Quiet Inter "+face,TextColor=color,VerticalAlignment=VerticalAlignment.Center};}
  void BuildPage()
  {
+  if(page==0)RefreshInputs();
   var stopwatch=Stopwatch.StartNew();
   if(focusAnimation!=null){focusAnimation.Stop();focusAnimation.Dispose();focusAnimation=null;}
   ParkArtwork();pageArtworkCold=0;
@@ -109,7 +152,7 @@ public sealed class QuietHome : NUIApplication
     var input=inputs[0];
     var hero=Feature(input.Name,input.Action,"HDMI "+input.Hdmi,input.Artwork,80,cardY,heroWidth,cardHeight,"hero");
     hero.Card.Add(Label("HDMI "+input.Hdmi,44,52+heroTextOffset,340,40,24,new Color(.95f,.95f,1,1),"Semibold"));
-    hero.Card.Add(Label(input.Name,40,124+heroTextOffset,heroWidth-310,100,inputs.Count==4?52:64,white,"Display"));
+    hero.Card.Add(Label(input.Name,40,124+heroTextOffset,heroWidth-310,100,input.Name.Length>18?34:inputs.Count==4?52:64,white,"Display"));
     hero.Card.Add(Label("Switch to HDMI "+input.Hdmi,46,246+heroTextOffset,400,48,30,new Color(.95f,.95f,1,1)));
     int width=(1760-heroWidth-40*(inputs.Count-1))/(inputs.Count-1);
     for(int i=1;i<inputs.Count;i++){

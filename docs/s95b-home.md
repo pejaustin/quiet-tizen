@@ -21,7 +21,55 @@ Build: `.local/build/S95bHome/`. Package: `.local/package-s95b/`, including the
 runtime configuration and original assets. No Samsung references are bundled.
 All 12 upstream catalog IDs were found in the TV's registry.
 
-## Owner's device cards
+## Owner's device cards and automatic discovery
+
+Austin, 2026-10-25: implement automatic detection, using the input name
+(`HDMI 1`, etc.) when detection is generic, rather than retaining custom names.
+He subsequently clarified that Switch is on HDMI 4 and its playback works;
+the problem was identification, not video. The final installed CEC-aware build
+was confirmed by Austin: "Yes, correct now."
+
+S95B builds refresh on Home entry/resume and every 30 seconds while Home is
+visible. They combine two native sources:
+
+- `libhdmicec-api.so.0`: device count, physical port and device name. A specific
+  CEC name takes precedence. Actual results: `Switch 2` on HDMI 4,
+  `Steam Machine` on HDMI 2, `Fire TV Stick` on HDMI 3.
+- `libsource-api.so`: `get_source_list()` / `detectedName`, used when no specific
+  CEC name is available. This list alone reported PC on HDMI 2 and an empty
+  name on HDMI 4, explaining why the first implementation stayed generic.
+
+`editName` and configured aliases are not naming fallbacks. Empty, generic or
+unavailable identity becomes `HDMI N` with existing generic HDMI artwork.
+Recognized device families select the existing local device illustrations;
+new replacement artwork has not been selected. The Switch family currently
+uses the existing Switch illustration, including the detected Switch 2.
+All four configured ports remain selectable even if absent from detection;
+names remain available while off only when Samsung still supplies them.
+Ambiguous multiple CEC devices on one port do not supply an override.
+The physical source IDs and card order stay fixed; detection changes labels
+and artwork, never the input selected by a card.
+
+CEC and source-list calls work inside the installed app without ongoing root
+or a host helper. Matching native libraries were inspected to verify signatures
+and allocation ownership: source JSON is `strdup`-owned, CEC names are allocated
+by GLib. Buffers are freed after each refresh. Current diagnostics are written
+locally to `/tmp/quiet-home-inputs.json` (overwritten, not sent anywhere).
+
+An owner-authorized temporary `canalysis-service` trial produced no new source
+names. Its stop marker was restored and the trial process stopped (MainPID 0;
+the unit retained a failed status after requiring a targeted SIGKILL to finish
+stopping). No registry flags were changed. CEC identifies the devices with
+that service stopped, so it is not required for this implementation.
+
+Tests cover percent-encoded names, generic-name fallback, absent/off devices,
+changed port identities, malformed/duplicate source records and CEC precedence.
+The S95B build compiled, installed hash matched, runtime discovery reported no
+errors, and Austin confirmed the corrected cards. Fire TV playback and Switch
+HDMI 4 playback were confirmed; new discovery after a physical device swap and
+discovery-specific full restart testing remain unverified.
+
+### Earlier manual configuration
 
 Austin, 2026-10-25: HDMI 1 is Nintendo Switch, HDMI 2 Steam Machine, HDMI 3
 Fire TV Stick, HDMI 4 PS4. The Switch and PS4 are connected but currently off.
@@ -89,6 +137,13 @@ nonpersistent; vendor services without those persistent controls can run again.
 See [cleanup evidence](s95b-cleanup.md).
 
 Later snapshots under `/opt/usr/share/quiet-tizen-backups/`:
+
+- `s95b-cec-discovery-20261025`, then `s95b-input-discovery-20261025`:
+  DLL-only discovery revisions, each with previous assembly, before hash and
+  guarded `restore.sh` on TV and host. Undo these before layout revisions.
+- `s95b-discovery-trial-20261025`: original analysis-service stop marker,
+  service-state record and inverse script. Trial already reverted; its
+  restore guard intentionally refuses to overwrite the restored marker.
 
 - `s95b-centered-proportions-20261025`, `s95b-centered-inputs-20261025`,
   `s95b-no-dock-20261025`: DLL-only layout revisions, each with a previous
