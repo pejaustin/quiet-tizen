@@ -105,15 +105,16 @@ public sealed class QuietHome : NUIApplication
   clock=Text(DateTime.Now.ToString("h:mm tt"),1540,170,300,45,24,muted);clock.HorizontalAlignment=HorizontalAlignment.End;
   if(page==0){
     int heroWidth=inputs.Count==4?800:1040;
+    int cardHeight=442,cardY=345,heroTextOffset=0;
     var input=inputs[0];
-    var hero=Feature(input.Name,input.Action,"HDMI "+input.Hdmi,input.Artwork,80,262,heroWidth,442,"hero");
-    hero.Card.Add(Label("HDMI "+input.Hdmi,44,52,340,40,24,new Color(.95f,.95f,1,1),"Semibold"));
-    hero.Card.Add(Label(input.Name,40,124,heroWidth-310,100,inputs.Count==4?52:64,white,"Display"));
-    hero.Card.Add(Label("Switch to HDMI "+input.Hdmi,46,246,400,48,30,new Color(.95f,.95f,1,1)));
+    var hero=Feature(input.Name,input.Action,"HDMI "+input.Hdmi,input.Artwork,80,cardY,heroWidth,cardHeight,"hero");
+    hero.Card.Add(Label("HDMI "+input.Hdmi,44,52+heroTextOffset,340,40,24,new Color(.95f,.95f,1,1),"Semibold"));
+    hero.Card.Add(Label(input.Name,40,124+heroTextOffset,heroWidth-310,100,inputs.Count==4?52:64,white,"Display"));
+    hero.Card.Add(Label("Switch to HDMI "+input.Hdmi,46,246+heroTextOffset,400,48,30,new Color(.95f,.95f,1,1)));
     int width=(1760-heroWidth-40*(inputs.Count-1))/(inputs.Count-1);
     for(int i=1;i<inputs.Count;i++){
      input=inputs[i];
-     Feature(input.Name,input.Action,"HDMI "+input.Hdmi,input.Artwork,80+heroWidth+40+(i-1)*(width+40),262,width,442,"portrait");
+     Feature(input.Name,input.Action,"HDMI "+input.Hdmi,input.Artwork,80+heroWidth+40+(i-1)*(width+40),cardY,width,cardHeight,"portrait");
     }
   }else if(page==1){
    BuildLibrary();
@@ -127,15 +128,6 @@ public sealed class QuietHome : NUIApplication
    SettingsTile("Controllers","controllers","DualSense · hold PS + Create","controller",1,1);
    SettingsTile("Network","network","Wi-Fi and connection setup","network",2,1);
    SettingsTile("Advanced","app:org.tizen.menu","Open Samsung's full settings","settings",3,1);
-  }
-  if(page==0){
-  Add(new ImageView{ResourceUrl=Root+"glass-shelf.svg",Position2D=new Position2D(0,784),Size2D=new Size2D(1920,280)});
-  Dock("Netflix","app:org.tizen.netflix-app","netflix",0);
-  Dock("YouTube","app:com.samsung.tv.cobalt-yt","youtube",1);
-  Dock("Prime Video","app:org.tizen.primevideo","prime",2);
-   Dock(inputs[0].Name,inputs[0].Action,inputs[0].DockArtwork,3);
-   Dock(inputs[1].Name,inputs[1].Action,inputs[1].DockArtwork,4);
-  Dock("Your Apps","page:1","apps",5);
   }
   Toolbar("Apps","page:1","apps",0);Toolbar("Inputs","page:0","hdmi",1);Toolbar("Settings","page:2","settings",2);
   toolbarHint=Text("",1530,170,310,45,24,ink);toolbarHint.HorizontalAlignment=HorizontalAlignment.End;
@@ -253,8 +245,8 @@ public sealed class QuietHome : NUIApplication
   var shadow=Add(new ImageView{ResourceUrl=Root+"shadow-"+shape+".svg",Position2D=new Position2D(x-24,y-10),Size2D=new Size2D(w+48,h+64)});
   var card=Panel(x+w/2,y+h/2,w,h,new Color(0,0,0,0),18);card.PivotPoint=new Position(.5f,.5f,.5f);card.PositionUsesPivotPoint=true;
   card.Add(new ImageView{ResourceUrl=Root+asset,Size2D=new Size2D(w,h)});
-  var caption=Text(label,x,716,w,45,31,ink,"Semibold");
-  Text(description,x,760,w,36,24,muted);
+   var caption=Text(label,x,y+h+12,w,45,31,ink,"Semibold");
+   Text(description,x,y+h+56,w,36,24,muted);
   var slot=new Slot{Card=card,Shadow=shadow,Label=caption,Name=label,Action=action,Description=description,Row=0,X=x,Y=y,W=w,H=h};slots.Add(slot);return slot;
  }
  void Dock(string label,string action,string asset,int n)
@@ -320,7 +312,7 @@ public sealed class QuietHome : NUIApplication
    if(page==1&&HandleLibraryKey(k))return;
    if(editing!=""){if(k=="Left"||k=="Right"){int d=k=="Left"?-1:1;if(editing=="volume")ChangeVolume(d);else ChangeBrightness(d);}else if(k=="Return"||k=="KP_Enter"||k=="XF86Back"||k=="Back"||k=="Escape"){editing="";UpdateFocus();}return;}
    if(k=="Up"){if(area==2){int col=Row(1).IndexOf(selected);area=1;selected=Row(0)[page==2?col:0];}else if(area==1)area=0;UpdateFocus();}
-   else if(k=="Down"){if(area==0||area==3){area=1;selected=Row(0)[0];}else if(area==1){int col=Row(0).IndexOf(selected);area=2;selected=Row(1)[page==2?col:0];}UpdateFocus();}
+    else if(k=="Down"){if(area==0||area==3){area=1;selected=Row(0)[0];}else if(area==1&&Row(1).Count>0){int col=Row(0).IndexOf(selected);area=2;selected=Row(1)[page==2?col:0];}UpdateFocus();}
    else if(k=="Left"||k=="Right"){
     int d=k=="Left"?-1:1;
     if(area==0){int next=page+d;if(next<0||next>2){area=3;selected=Row(-1)[next<0?2:0];UpdateFocus();}else{page=next;selected=0;BuildPage();}}

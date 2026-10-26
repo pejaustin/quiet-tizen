@@ -35,8 +35,15 @@ local artwork paths and supported card count. Current-source focus and Back
 now include HDMI 4. Cards are configured independently of source detection,
 so powered-off devices remain available. HDMI 1/4 playback awaits powered-on
 testing. The home row retains Quiet Home styling, with Fire TV as an 800-pixel
-featured card and three 280-pixel cards. The two input dock shortcuts match
-Fire TV and Steam Machine.
+featured card and three 280-pixel cards.
+
+Austin, 2026-10-25: remove the mixed bottom app/input shortcut row and its
+shelf, since header navigation already provides Apps. Center the input row
+in the remaining space. A taller-card trial distorted the artwork and was
+rejected; the installed result restores the original 442-pixel height and
+centers the cards plus captions below the header (card top: 345 pixels).
+Austin confirmed this corrected layout looks right. Down on the input row
+stays there rather than selecting a removed dock item.
 
 New Fire TV, Steam Machine and PS4 artwork consists of original vector device
 illustrations; Switch artwork is the existing upstream asset. These replace
@@ -82,6 +89,12 @@ nonpersistent; vendor services without those persistent controls can run again.
 See [cleanup evidence](s95b-cleanup.md).
 
 Later snapshots under `/opt/usr/share/quiet-tizen-backups/`:
+
+- `s95b-centered-proportions-20261025`, `s95b-centered-inputs-20261025`,
+  `s95b-no-dock-20261025`: DLL-only layout revisions, each with a previous
+  assembly, before hash and guarded `restore.sh`, also copied to the host.
+  Unwind in that order before the device-card layer. The middle revision
+  is the rejected taller-card trial, not the accepted layout.
 
 - `s95b-device-cards-20261025`: pre-card-update DLL, complete resource archive,
   before/after hashes and `restore.sh`. Host copies are under the same name
